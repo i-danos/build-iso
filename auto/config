@@ -14,10 +14,10 @@ get_prjconf_parameter()
 
     if [ ! -e $BUILDCONFIG ] && [ -d $TOPDIR/SOURCES ]
     then
-        BUILDCONFIG=$( ls -1 $TOPDIR/SOURCES/_buildconfig* | head -n1 )
+        BUILDCONFIG=$( ls -1 $TOPDIR/SOURCES/_buildconfig* 2>/dev/null | head -n1 || true )
     fi
 
-    if [ -e $BUILDCONFIG ]
+    if [ -n "$BUILDCONFIG" ] && [ -e "$BUILDCONFIG" ]
     then
         grep -E "^%$PARAM " $BUILDCONFIG | sed "s/^%$PARAM //g" | tail -n1
     else
@@ -47,7 +47,7 @@ EOF
 
 IMAGE_NAME="${RECIPEFILE%.livebuild}_${BUILDSTAMP}"
 
-LINUX_FLAVOURS=$(grep -s -h linux-image config/package-lists/*.chroot | sed "s/linux-image-//g")
+LINUX_FLAVOURS=$(grep -s -h linux-image config/package-lists/*.chroot | grep -v '^#' | sed "s/linux-image-//g")
 
 if [ -z "$LINUX_FLAVOURS" ]; then
     LINUX_FLAVOURS="vyatta"
@@ -66,7 +66,7 @@ fi
 lb config noauto \
     --apt apt \
     --apt-indices false \
-    --apt-options "--yes --force-yes -o Acquire::Check-Valid-Until=false" \
+    --apt-options "--yes --allow-unauthenticated --allow-downgrades -o Acquire::Check-Valid-Until=false -o Acquire::AllowInsecureRepositories=true" \
     --apt-recommends false \
     --apt-source-archives false \
     --backports false \
@@ -76,7 +76,24 @@ lb config noauto \
     --chroot-filesystem squashfs \
     --debconf-frontend noninteractive \
     --debian-installer false \
-    --distribution stable \
+    --distribution buster \
+    --debian-installer-distribution buster \
+    --parent-debian-installer-distribution buster \
+    --mirror-bootstrap http://archive.debian.org/debian/ \
+    --mirror-binary http://archive.debian.org/debian/ \
+    --mirror-binary-security http://archive.debian.org/debian-security/ \
+    --mirror-chroot http://archive.debian.org/debian/ \
+    --mirror-chroot-security http://archive.debian.org/debian-security/ \
+    --parent-mirror-binary http://archive.debian.org/debian/ \
+    --parent-mirror-binary-security http://archive.debian.org/debian-security/ \
+    --parent-mirror-chroot http://archive.debian.org/debian/ \
+    --parent-mirror-chroot-security http://archive.debian.org/debian-security/ \
+    --parent-mirror-debian-installer http://archive.debian.org/debian/ \
+    --mirror-debian-installer http://archive.debian.org/debian/ \
+    --archive-areas "main contrib non-free" \
+    --parent-archive-areas "main contrib non-free" \
+    --keyring-packages "debian-archive-keyring" \
+    --debootstrap-options "--keyring=/usr/share/keyrings/debian-archive-keyring.gpg --no-check-gpg" \
     --firmware-binary false \
     --firmware-chroot false \
     --ignore-system-defaults \
@@ -87,7 +104,7 @@ lb config noauto \
     --iso-volume "${ISO_VOLUME}" \
     --linux-flavours "${LINUX_FLAVOURS}" \
     --mode debian \
-    --parent-distribution stable \
+    --parent-distribution buster \
     --security true \
     --source false \
     --updates false \
