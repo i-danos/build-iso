@@ -1,0 +1,5 @@
+dpdk-modules-5.4.0-trunk-vyatta-amd64
+dpdk-rte-igb-uio-kmod-5.4.0-trunk-vyatta-amd64
+bcm-linux-bde-modules-5.4.0-trunk-vyatta-amd64
+dpdk
+vyatta-dataplane
