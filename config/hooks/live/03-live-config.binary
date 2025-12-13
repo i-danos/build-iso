@@ -8,5 +8,22 @@ echo "I: running hook $(basename ${0})"
 VERS=$(chroot ../chroot dpkg-query --showformat='${Version}\n' --show live-config 2>/dev/null)
 
 if dpkg --compare-versions "${VERS}" '>=' 5.0~a5 ; then
-    mv --no-target-directory live/config live/config.conf.d
+    if [ -d live/config ] && [ -d live/config.conf.d ]; then
+        for src in live/config/*; do
+            [ -e "${src}" ] || continue
+            base=$(basename "${src}")
+            dst="live/config.conf.d/${base}"
+
+            if [ ! -e "${dst}" ]; then
+                mv "${src}" "${dst}"
+            elif cmp -s "${src}" "${dst}"; then
+                rm -f "${src}"
+            else
+                mv "${src}" "${dst}.from-config"
+            fi
+        done
+        rmdir live/config 2>/dev/null || true
+    else
+        mv --no-target-directory live/config live/config.conf.d
+    fi
 fi
