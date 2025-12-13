@@ -1,5 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-(lb build noauto "${@}" && echo $?) 2>&1 | tee build.log
+lb build noauto "$@" 2>&1 | tee build.log
+rc=${PIPESTATUS[0]}
+echo "$rc"
+exit "$rc"
