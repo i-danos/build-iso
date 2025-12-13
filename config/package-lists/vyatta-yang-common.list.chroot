@@ -47,7 +47,7 @@ vyatta-op-copy-file-v1-yang
 vyatta-op-copy-v1-yang
 vyatta-op-dataplane-session-v1-yang
 vyatta-op-delete-file-v1-yang
-vyatta-op-delete-syslog-file-v1-yang
+# vyatta-op-delete-syslog-file-v1-yang
 vyatta-op-delete-system-image-v1-yang
 vyatta-op-delete-system-v1-yang
 vyatta-op-generate-v1-yang
@@ -100,7 +100,7 @@ vyatta-op-show-monitoring-dataplane-v1-yang
 vyatta-op-show-raid-v1-yang
 vyatta-op-show-switch-spanning-tree-v1-yang
 vyatta-op-show-switch-v1-yang
-vyatta-op-show-syslog-v1-yang
+# vyatta-op-show-syslog-v1-yang
 vyatta-op-show-system-image-v1-yang
 vyatta-op-show-system-storage-v1-yang
 vyatta-op-show-system-ip-v1-yang
@@ -110,7 +110,7 @@ vyatta-op-show-tacplus-v1-yang
 vyatta-op-start-gnss-v1-yang
 vyatta-op-stop-gnss-v1-yang
 vyatta-op-storm-control-v1-yang
-vyatta-op-syslog-event-scripts-v1-yang
+# vyatta-op-syslog-event-scripts-v1-yang
 vyatta-op-system-session-v1-yang
 vyatta-op-system-sfp-v1-yang
 vyatta-op-traceroute-v1-yang
@@ -149,7 +149,7 @@ vyatta-system-reboot-v1-yang
 vyatta-system-session-v1-yang
 vyatta-system-sfp-v1-yang
 vyatta-system-storage-v1-yang
-vyatta-system-storage-monitor-v1-yang
+# vyatta-system-storage-monitor-v1-yang
 vyatta-system-tacplus-v1-yang
 vyatta-xconnect-v1-yang
 vyatta-zone-based-firewall-feature
