@@ -80,6 +80,17 @@ cli_sandbox()
     touch /etc/apt/sources.list.d/dummy
     
     echo "I: Creating sandbox in $R arch=$ARCH"
+    # Clean any previous sandbox (mmdebstrap fails if target is non-empty)
+    if [ -d "$R" ]; then
+        echo "I: Cleaning existing sandbox at $R"
+        # best-effort unmount of prior bind mounts
+        if mountpoint -q "$R/.build.binaries"; then
+            umount -l "$R/.build.binaries" || true
+        fi
+        umount -l "$R"/* 2>/dev/null || true
+        rm -rf "$R"
+    fi
+
     mkdir -p config/include.chroot/cli-sandbox
     if [ -x /usr/bin/mmdebstrap ]; then
 	echo "I: bootstraping sandbox"
