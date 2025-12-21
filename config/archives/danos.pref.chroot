@@ -1,3 +1,8 @@
 Package: *
-Pin: release o=LocalRepo
+Pin: release o=DANOS
 Pin-Priority: 1000
+
+# Force iputils-ping to come from local DANOS repo even if Debian has a newer version
+Package: iputils-ping
+Pin: release o=DANOS
+Pin-Priority: 1100
