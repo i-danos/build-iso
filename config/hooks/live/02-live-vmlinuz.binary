@@ -1,17 +1,28 @@
 #!/bin/sh
 
 # partially copied from binary_syslinux
+
+# Newer live-build's binary_linux-image step already hardlinks
+# vmlinuz-<flavour>/initrd.img-<flavour> to vmlinuz/initrd.img itself, so
+# skip the move when source and target are already the same file.
+move_if_distinct()
+{
+	src="${1}"
+	dst="${2}"
+	[ "$(stat -c '%d:%i' "${src}" 2>/dev/null)" = "$(stat -c '%d:%i' "${dst}" 2>/dev/null)" ] || mv "${src}" "${dst}"
+}
+
 _FLAVOURS="$(echo ${LB_LINUX_FLAVOURS:-$(ls live/vmlinuz-*)} | wc -w)"
 case "${_FLAVOURS}" in
     1)
-        mv live/vmlinuz-* live/vmlinuz
-        mv live/initrd.img-* live/initrd.img
+        move_if_distinct live/vmlinuz-* live/vmlinuz
+        move_if_distinct live/initrd.img-* live/initrd.img
 	;;
     *)
 	for _FLAVOUR in ${LB_LINUX_FLAVOURS}
         do
-	    mv live/vmlinuz-*-${_FLAVOUR} live/vmlinuz${_FLAVOUR}
-            mv live/initrd.img-*-${_FLAVOUR} live/initrd${_FLAVOUR}.img
+	    move_if_distinct live/vmlinuz-*-${_FLAVOUR} live/vmlinuz${_FLAVOUR}
+            move_if_distinct live/initrd.img-*-${_FLAVOUR} live/initrd${_FLAVOUR}.img
 	done
 	;;
 esac

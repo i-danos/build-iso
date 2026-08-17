@@ -1,2 +1,4 @@
-dpdk-modules
+# dpdk-modules: DPDK 24.11 uses in-tree vfio-pci/uio_pci_generic instead of
+# out-of-tree igb_uio/rte_kni kernel modules, so this is no longer built/needed.
+#dpdk-modules
 vyatta-dataplane

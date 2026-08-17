@@ -2,7 +2,11 @@ Package: *
 Pin: release o=DANOS
 Pin-Priority: 1000
 
-# Force iputils-ping to come from local DANOS repo even if Debian has a newer version
-Package: iputils-ping
-Pin: release o=DANOS
-Pin-Priority: 1100
+# iputils is no longer forked. The pin here used to hold ping at DANOS's 2018
+# build for a local -Z option ("source from this interface's address"), which
+# the op-mode ping wrapper needed for loopback interfaces. The wrapper now
+# resolves the loopback address itself and passes it to the standard -I, so
+# Debian's current iputils is used unmodified.
+#
+# grub/shim are sourced from stock Debian 13 for the trixie build, not DANOS's
+# own repo (DANOS no longer builds these packages), so no forced-pin needed.

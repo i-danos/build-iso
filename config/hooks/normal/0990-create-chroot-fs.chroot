@@ -55,8 +55,12 @@ cli_sandbox()
     local ARCH
     local DIST
 
-    ARCH="$(get_lb_cfg Architecture)"
-    DIST="$(get_lb_cfg Distribution)"
+    # get_lb_cfg reads config/build, a live-build internal state file that
+    # newer live-build (20250505+) no longer writes in this format. This
+    # build only ever targets amd64/trixie, so hardcode rather than chase
+    # the new internal layout for this non-essential sandbox feature.
+    ARCH="amd64"
+    DIST="trixie"
 
     local R=${1}
     local includes="${2}"

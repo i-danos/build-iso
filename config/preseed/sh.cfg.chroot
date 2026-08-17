@@ -1,1 +1,8 @@
+# Kept for the record only -- this is a no-op on trixie.
+#
+# Trixie's dash (0.5.12-12) removed the dash/sh debconf question, so nothing
+# reads this answer any more. The requirement it expressed (/bin/sh must be
+# bash, because DANOS's op-mode YANG uses bash-only "${@:2}" in on-enter
+# snippets) is now met by config/hooks/normal/0010-sh-is-bash.chroot, which
+# registers a LOCAL dpkg diversion instead.
 dash	dash/sh boolean false

@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+
+# DANOS's op-mode YANG hands its opd:on-enter snippets to /bin/sh, and 48 of
+# them slice the argument list with bash-only syntax ("${@:2}"). Under dash
+# every one of those commands dies with "Bad substitution" -- ping, show
+# dataplane, add system image, monitor interfaces vrrp, and so on.
+#
+# 2110a got /bin/sh pointing at bash through config/preseed/sh.cfg.chroot
+# ("dash dash/sh boolean false"), which made dash's postinst hand /bin/sh to a
+# diversion owned by the bash package. Trixie's dash (0.5.12-12) dropped that
+# debconf question -- dash/ineffectivediversion is the only template it still
+# ships -- so the preseed is now a no-op and /bin/sh stays on dash.
+#
+# A diversion owned by "bash" would not survive either: dash's claim_binsh()
+# removes that one and takes /bin/sh back. Only a LOCAL diversion, added
+# without --package, is honoured, so that is what we register.
+
+if [ "$(dpkg-divert --listpackage /bin/sh)" != LOCAL ]; then
+	dpkg-divert --divert /bin/sh.distrib --rename --add /bin/sh
+	ln -sf bash /bin/sh
+fi
+
+# Keep "man sh" describing the shell /bin/sh actually is. --no-rename because
+# dpkg warns against renaming a file owned by an Essential package; this half
+# is cosmetic, so it must never fail the build.
+if [ "$(dpkg-divert --listpackage /usr/share/man/man1/sh.1.gz)" != LOCAL ]; then
+	dpkg-divert --divert /usr/share/man/man1/sh.distrib.1.gz --no-rename \
+		--add /usr/share/man/man1/sh.1.gz || true
+	ln -sf bash.1.gz /usr/share/man/man1/sh.1.gz || true
+fi
+
+# Fail loudly rather than ship another ISO where every op-mode command that
+# slices "$@" is broken.
+resolved=$(readlink -f /bin/sh)
+if [ "$resolved" != /usr/bin/bash ]; then
+	echo "E: /bin/sh resolves to $resolved, expected /usr/bin/bash" >&2
+	exit 1
+fi
+
+echo "I: /bin/sh -> $resolved (local diversion)"
