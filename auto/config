@@ -66,7 +66,7 @@ fi
 lb config noauto \
     --apt apt \
     --apt-indices false \
-    --apt-options "--yes --allow-unauthenticated --allow-downgrades -o Acquire::Check-Valid-Until=false -o Acquire::AllowInsecureRepositories=true" \
+    --apt-options "--yes --allow-downgrades -o Acquire::Check-Valid-Until=false" \
     --apt-recommends false \
     --apt-source-archives false \
     --backports false \
@@ -75,25 +75,25 @@ lb config noauto \
     --checksums "md5 sha256" \
     --chroot-filesystem squashfs \
     --debconf-frontend noninteractive \
-    --debian-installer false \
-    --distribution buster \
-    --debian-installer-distribution buster \
-    --parent-debian-installer-distribution buster \
-    --mirror-bootstrap http://archive.debian.org/debian/ \
-    --mirror-binary http://archive.debian.org/debian/ \
-    --mirror-binary-security http://archive.debian.org/debian-security/ \
-    --mirror-chroot http://archive.debian.org/debian/ \
-    --mirror-chroot-security http://archive.debian.org/debian-security/ \
-    --parent-mirror-binary http://archive.debian.org/debian/ \
-    --parent-mirror-binary-security http://archive.debian.org/debian-security/ \
-    --parent-mirror-chroot http://archive.debian.org/debian/ \
-    --parent-mirror-chroot-security http://archive.debian.org/debian-security/ \
-    --parent-mirror-debian-installer http://archive.debian.org/debian/ \
-    --mirror-debian-installer http://archive.debian.org/debian/ \
-    --archive-areas "main contrib non-free" \
-    --parent-archive-areas "main contrib non-free" \
+    --debian-installer none \
+    --distribution trixie \
+    --debian-installer-distribution trixie \
+    --parent-debian-installer-distribution trixie \
+    --mirror-bootstrap http://deb.debian.org/debian/ \
+    --mirror-binary http://deb.debian.org/debian/ \
+    --mirror-binary-security http://deb.debian.org/debian-security/ \
+    --mirror-chroot http://deb.debian.org/debian/ \
+    --mirror-chroot-security http://deb.debian.org/debian-security/ \
+    --parent-mirror-binary http://deb.debian.org/debian/ \
+    --parent-mirror-binary-security http://deb.debian.org/debian-security/ \
+    --parent-mirror-chroot http://deb.debian.org/debian/ \
+    --parent-mirror-chroot-security http://deb.debian.org/debian-security/ \
+    --parent-mirror-debian-installer http://deb.debian.org/debian/ \
+    --mirror-debian-installer http://deb.debian.org/debian/ \
+    --archive-areas "main contrib non-free non-free-firmware" \
+    --parent-archive-areas "main contrib non-free non-free-firmware" \
     --keyring-packages "debian-archive-keyring" \
-    --debootstrap-options "--keyring=/usr/share/keyrings/debian-archive-keyring.gpg --no-check-gpg" \
+    --debootstrap-options "--keyring=/usr/share/keyrings/debian-archive-keyring.gpg" \
     --firmware-binary false \
     --firmware-chroot false \
     --ignore-system-defaults \
@@ -104,7 +104,7 @@ lb config noauto \
     --iso-volume "${ISO_VOLUME}" \
     --linux-flavours "${LINUX_FLAVOURS}" \
     --mode debian \
-    --parent-distribution buster \
+    --parent-distribution trixie \
     --security true \
     --source false \
     --updates false \

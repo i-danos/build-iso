@@ -85,7 +85,7 @@ vyatta-op-show-bridge-v1-yang
 vyatta-op-show-confirmed-commit-v1-yang
 vyatta-op-show-dataplane-v1-yang
 vyatta-op-show-file-v1-yang
-vyatta-op-show-gnss-v1-yang
+# vyatta-op-show-gnss-v1-yang  # GNSS/GPS 授时（物理设备），纯软件路线已移除
 vyatta-op-show-interfaces-bridge-v1-yang
 vyatta-op-show-interfaces-dataplane-v1-yang
 vyatta-op-show-interfaces-erspan-v1-yang
@@ -107,8 +107,8 @@ vyatta-op-show-system-ip-v1-yang
 vyatta-op-show-system-ip-icmp-v1-yang
 vyatta-op-show-system-login-history-v1-yang
 vyatta-op-show-tacplus-v1-yang
-vyatta-op-start-gnss-v1-yang
-vyatta-op-stop-gnss-v1-yang
+# vyatta-op-start-gnss-v1-yang  # 同上
+# vyatta-op-stop-gnss-v1-yang  # 同上
 vyatta-op-storm-control-v1-yang
 # vyatta-op-syslog-event-scripts-v1-yang
 vyatta-op-system-session-v1-yang
@@ -131,7 +131,7 @@ vyatta-service-dhcp-server-v1-yang
 vyatta-service-dhcpv6-relay-v1-yang
 vyatta-service-dhcpv6-server-v1-yang
 vyatta-service-dns-v1-yang
-vyatta-service-gnss-v1-yang
+# vyatta-service-gnss-v1-yang  # 同上
 vyatta-service-https-v1-yang
 vyatta-service-lldp-v1-yang
 vyatta-service-nat-cgnat-v1-yang
@@ -139,7 +139,7 @@ vyatta-service-nat-nptv6-v1-yang
 vyatta-service-nat-pool-v1-yang
 vyatta-service-nat-v1-yang
 vyatta-service-nat64-v1-yang
-vyatta-service-pcp-v1-yang
+# vyatta-service-pcp-v1-yang  # PCP(RFC6887)：依赖 DANOS 给 libre 打的 PCP 补丁，随 libre 分叉一并移除
 vyatta-service-twamp-v1-yang
 vyatta-system-dataplane-v1-yang
 vyatta-system-iommu-v1-yang

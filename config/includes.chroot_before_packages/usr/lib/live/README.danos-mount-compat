@@ -1,0 +1,33 @@
+The "mount" symlink in this directory (/usr/lib/live/mount -> /run/live,
+reached as /lib/live/mount via the merged-/usr symlink) restores a path that
+live-config still depends on but live-boot no longer provides.
+
+Background:
+
+  live-boot mounts the boot medium at /run/live/medium. Up to and including
+  buster, live-boot additionally bind-mounted that tree onto the historical
+  path so old consumers kept working -- see 9990-main.sh in buster's
+  live-boot:
+
+      # avoid breaking existing user scripts that rely on the old path
+      mkdir -p ${rootmnt}/lib/live/mount
+      mount --rbind /run/live ${rootmnt}/lib/live/mount
+      # XXX: to be removed before the bullseye release
+
+  That shim was duly removed. live-config, however, was never updated: as of
+  11.0.5 it still looks *only* under /lib/live/mount/medium --
+
+      usr/lib/live/init-config.sh   (config.conf, config.conf.d/*.conf)
+      usr/lib/live/config/0010-debconf   (config-preseed/*)
+      usr/lib/live/config/9990-hooks     (config-hooks/*)
+
+The consequence is that everything the ISO ships on the medium side under
+/live (config.conf, config.conf.d/user-setup.conf, ...) is silently ignored.
+For this image that meant LIVE_USERNAME never got set, so live-config's
+user-setup component created no login account and
+live-config-getty-generator's `[ -n "${LIVE_USERNAME}" ]` guard skipped
+creating the tty autologin drop-ins -- the ISO booted to a login prompt
+instead of straight into vbash.
+
+Restoring the path lets the stock live-config mechanism work as designed,
+rather than reimplementing autologin ourselves.

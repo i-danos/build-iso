@@ -17,4 +17,4 @@ live-boot-vyatta
 live-config
 live-config-systemd
 locales
-tftp
+tftp-hpa
