@@ -36,10 +36,20 @@ fi
 
 BUILDSTAMP="$(date +"%Y%m%dT%H%M" -d @$BUILD_TIME)"
 
-PROJECT_ID=$(get_prjconf_parameter _project)
+# VYATTA_PROJECT_ID is the build stamp shown as the trailing bracket of
+# "show version", e.g. DANOS (Kington) 2111 (DANOS:Shipping:2111:20260820).
+# It is not the codename: _project holds that, and it already reaches
+# os-release through PRETTY_NAME. Passing the codename here produced a
+# second VYATTA_PROJECT_ID line in /etc/os-release that shadowed the
+# correct one vyatta-version had written, and the banner degenerated to
+# "DANOS (Kington) 2111 (Kington)".
+PROJECT_STAMP_DATE=$(date -u +'%Y%m%d' -d @${BUILD_TIME})
+PROJECT_ID="$(get_prjconf_parameter _vyatta_pretty_name):Shipping:$(get_prjconf_parameter _vyatta_version_id):${PROJECT_STAMP_DATE}"
 
-# create environment file read by chroot hooks
-cat <<EOF >> config/environment.chroot_hooks
+# create environment file read by chroot hooks -- truncated, not appended:
+# the hooks source it and the last assignment wins, so appending each build
+# only grew the file without changing behaviour.
+cat <<EOF > config/environment.chroot_hooks
 BUILD_TIME="${BUILD_TIME}"
 PROJECT_ID="${PROJECT_ID}"
 RECIPEFILE="${RECIPEFILE}"
@@ -63,10 +73,15 @@ if [ "$ONIE" != "true" ] && [ "$ONIE" != "false" ]; then
     ONIE="false"
 fi
 
+# bootstrap/chroot 取包走阿里云镜像：本机到 deb.debian.org 实测约 30 KB/s，
+# 阿里云约 2 MB/s，相差约 68 倍，直接决定构建是几十分钟还是若干小时。
+# binary 镜像保持 deb.debian.org —— 那是写进 ISO 内 sources.list 的地址，
+# 产品不应携带地域性镜像。改这里而不是 config/bootstrap，是因为 lb build
+# 会先跑 lb config 重新生成 config/bootstrap，手工编辑那个文件会被覆盖。
 lb config noauto \
     --apt apt \
     --apt-indices false \
-    --apt-options "--yes --allow-downgrades -o Acquire::Check-Valid-Until=false" \
+    --apt-options "--yes --allow-downgrades -o Acquire::Check-Valid-Until=false -o Acquire::Languages=none" \
     --apt-recommends false \
     --apt-source-archives false \
     --backports false \
@@ -79,15 +94,15 @@ lb config noauto \
     --distribution trixie \
     --debian-installer-distribution trixie \
     --parent-debian-installer-distribution trixie \
-    --mirror-bootstrap http://deb.debian.org/debian/ \
+    --mirror-bootstrap http://mirrors.aliyun.com/debian/ \
     --mirror-binary http://deb.debian.org/debian/ \
     --mirror-binary-security http://deb.debian.org/debian-security/ \
-    --mirror-chroot http://deb.debian.org/debian/ \
-    --mirror-chroot-security http://deb.debian.org/debian-security/ \
+    --mirror-chroot http://mirrors.aliyun.com/debian/ \
+    --mirror-chroot-security http://mirrors.aliyun.com/debian-security/ \
     --parent-mirror-binary http://deb.debian.org/debian/ \
     --parent-mirror-binary-security http://deb.debian.org/debian-security/ \
-    --parent-mirror-chroot http://deb.debian.org/debian/ \
-    --parent-mirror-chroot-security http://deb.debian.org/debian-security/ \
+    --parent-mirror-chroot http://mirrors.aliyun.com/debian/ \
+    --parent-mirror-chroot-security http://mirrors.aliyun.com/debian-security/ \
     --parent-mirror-debian-installer http://deb.debian.org/debian/ \
     --mirror-debian-installer http://deb.debian.org/debian/ \
     --archive-areas "main contrib non-free non-free-firmware" \

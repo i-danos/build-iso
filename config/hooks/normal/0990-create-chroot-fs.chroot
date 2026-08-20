@@ -99,9 +99,19 @@ cli_sandbox()
     if [ -x /usr/bin/mmdebstrap ]; then
 	echo "I: bootstraping sandbox"
 	# shellcheck disable=SC2086
+       	# apt has no read timeout by default. When a mirror's CDN node accepts
+	# the connection and then goes quiet mid-transfer, the fetch blocks for
+	# as long as the TCP connection survives -- observed here as a build
+	# that sat silent for half an hour with an ESTABLISHED socket carrying
+	# no data. Cap the wait so apt gives up on a dead connection and retries
+	# rather than hanging the whole image build.
        	cat /etc/apt/sources.list /etc/apt/sources.list.d/* \
            | sed 's/file:/[trusted=yes] copy:/g' \
-           | mmdebstrap --essential-hook="${ess_hook}" --customize-hook="${cus_hook}" ${opts} "${DIST}" "${R}" -
+           | mmdebstrap --essential-hook="${ess_hook}" --customize-hook="${cus_hook}" \
+	       --aptopt='Acquire::http::Timeout "30";' \
+	       --aptopt='Acquire::https::Timeout "30";' \
+	       --aptopt='Acquire::Retries "3";' \
+	       ${opts} "${DIST}" "${R}" -
        	# Now clean up cli-sandbox
        	chroot "$R" apt-get clean
     fi
