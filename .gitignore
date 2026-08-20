@@ -26,3 +26,7 @@
 # live-build 自带钩子，lb config 以符号链接放入
 config/hooks/**/*.hook.chroot
 config/hooks/**/*.hook.binary
+
+# 测试镜像的叠加层由 scripts/90-mk-test-iso.sh 临时铺进 includes.chroot_after_packages，
+# 构建结束即撤除。目录本身要纳管，铺进去的副本不要。
+/config/includes.chroot_after_packages/etc/vyatta/dataplane.conf
