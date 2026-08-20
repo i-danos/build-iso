@@ -1,0 +1,28 @@
+# live-build 在本目录内就地构建，产物与状态都落在源码旁边。
+
+# 构建状态与产物
+/.build/
+/.lock
+/binary/
+/chroot/
+/cache/
+/binary.modified_timestamps
+/build_exit_code
+*.log
+
+# 镜像及其清单
+*.iso
+*.files
+*.packages
+*.contents
+
+# lb config 每次构建重新生成的文件
+/config/binary
+/config/bootstrap
+/config/chroot
+/config/common
+/config/environment.chroot_hooks
+
+# live-build 自带钩子，lb config 以符号链接放入
+config/hooks/**/*.hook.chroot
+config/hooks/**/*.hook.binary
