@@ -1,10 +1,11 @@
-# 仅构建期使用：live-build 用它作为 chroot 的 apt 源，
-# config/hooks/normal/0990-create-chroot-fs.chroot 建 CLI sandbox 时也读它。
-# 镜像 ISO 内的 /etc/apt/sources.list 由 LB_MIRROR_BINARY 另行生成，
-# 仍指向 deb.debian.org，不受此处影响。
+# Build time only: live-build uses this as the chroot's apt source, and
+# config/hooks/normal/0990-create-chroot-fs.chroot reads it when creating the
+# CLI sandbox. The /etc/apt/sources.list inside the ISO is generated separately
+# from LB_MIRROR_BINARY, still points at deb.debian.org, and is unaffected.
 #
-# 换用阿里云是因为从本机到 deb.debian.org 实测仅 30 KB/s，而阿里云 2 MB/s，
-# 相差约 68 倍，直接决定构建是几十分钟还是若干小时。
+# Aliyun is used because deb.debian.org measures only 30 KB/s from this host
+# against Aliyun's 2 MB/s — roughly 68x, the difference between a build taking
+# tens of minutes and taking hours.
 deb http://mirrors.aliyun.com/debian/ trixie main contrib non-free non-free-firmware
 deb http://mirrors.aliyun.com/debian-security/ trixie-security main contrib non-free non-free-firmware
 deb http://mirrors.aliyun.com/debian/ trixie-updates main contrib non-free non-free-firmware

@@ -1,2 +1,2 @@
 vyatta-policy-filter
-# vyatta-policy-qos-platform-support  # QoS 硬件卸载，纯软件路线用软件 QoS
+# vyatta-policy-qos-platform-support  # QoS hardware offload; the software-only line uses software QoS
