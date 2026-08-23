@@ -1,4 +1,4 @@
-# vyatta-sfpd  # SFP 收发器守护进程（裸金属硬件），纯软件路线已移除
-# vyatta-platform-util  # 硬件平台工具（PHY/SFP/platform-detect），纯软件路线不需要
+# vyatta-sfpd  # SFP transceiver daemon (bare-metal hardware); dropped on the software-only line
+# vyatta-platform-util  # hardware platform tools (PHY/SFP/platform-detect); not needed on the software-only line
 vyatta-interfaces-system-v1-yang
-# vyatta-system-platform-deviation-danos-v1-yang  # 硬件平台 YANG
+# vyatta-system-platform-deviation-danos-v1-yang  # hardware platform YANG

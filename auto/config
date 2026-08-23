@@ -73,11 +73,13 @@ if [ "$ONIE" != "true" ] && [ "$ONIE" != "false" ]; then
     ONIE="false"
 fi
 
-# bootstrap/chroot 取包走阿里云镜像：本机到 deb.debian.org 实测约 30 KB/s，
-# 阿里云约 2 MB/s，相差约 68 倍，直接决定构建是几十分钟还是若干小时。
-# binary 镜像保持 deb.debian.org —— 那是写进 ISO 内 sources.list 的地址，
-# 产品不应携带地域性镜像。改这里而不是 config/bootstrap，是因为 lb build
-# 会先跑 lb config 重新生成 config/bootstrap，手工编辑那个文件会被覆盖。
+# bootstrap/chroot fetch packages from the Aliyun mirror: measured from this
+# host, deb.debian.org runs at about 30 KB/s against Aliyun's 2 MB/s — roughly
+# 68x, the difference between a build taking tens of minutes and taking hours.
+# The binary mirror stays on deb.debian.org, since that address is written into
+# the sources.list inside the ISO and the product should not carry a regional
+# mirror. Set here rather than in config/bootstrap because lb build runs
+# lb config first and regenerates that file, discarding hand edits.
 lb config noauto \
     --apt apt \
     --apt-indices false \
