@@ -1,0 +1,18 @@
+# Stand-in for the build.dist OBS generates from the project prjconf.
+#
+# auto/config's get_prjconf_parameter() reads /.build/build.dist first, and
+# these values drive the ISO volume label, ISO application/publisher, and
+# PROJECT_ID -- which becomes the second VYATTA_PROJECT_ID line in
+# /etc/os-release and the trailing bracket of "show version".
+#
+# Keep in step with .obs/prjconf.txt. Getting them out of step is silent: the
+# vyatta-version package still carries the OBS value, so "show version" reports
+# the new release on the Version: line while the bracket and the ISO label keep
+# the old one.
+#
+# Install into the build container with:
+#   docker cp danos-2110b/build.dist danos-2110b-build:/.build/build.dist
+%_project Kington
+%_vyatta_name Disaggregated Network Operating System
+%_vyatta_pretty_name DANOS
+%_vyatta_version_id 2608
