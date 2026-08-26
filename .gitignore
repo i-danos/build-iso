@@ -32,3 +32,9 @@ config/hooks/**/*.hook.binary
 # includes.chroot_after_packages for the duration of a build and removes it
 # afterwards. Track the directory itself, not the staged copy.
 /config/includes.chroot_after_packages/etc/vyatta/dataplane.conf
+
+# Written by lb build at the end of a run: the package manifests for the two
+# install passes, and the source-stage directory. Regenerated every build.
+/chroot.packages.install
+/chroot.packages.live
+/config/source/
