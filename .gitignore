@@ -37,4 +37,4 @@ config/hooks/**/*.hook.binary
 # install passes, and the source-stage directory. Regenerated every build.
 /chroot.packages.install
 /chroot.packages.live
-/config/source/
+/config/source
