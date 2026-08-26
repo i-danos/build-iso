@@ -1,6 +1,13 @@
 systemtap
 gcc
-linux-headers-amd64
+# Name the DANOS headers explicitly rather than the linux-headers-amd64
+# metapackage. Both DANOS and Debian ship a package with that exact name, and
+# apt picks by version: once trixie moved to 6.12.105-1 it outranked our
+# 6.12.101-1vyatta1, so the metapackage pulled in Debian's headers and, through
+# their dependency, Debian's linux-image as well. The image then carried two
+# kernels and live-build made the newer one -- Debian's -- the default boot
+# entry, which is not the kernel the dataplane is built against.
+linux-headers-6.12.0-trunk-vyatta-amd64
 # linux-compiler-gcc-10-x86: our 6.12 kernel was built with gcc-10, but trixie's
 # repos don't ship gcc-10 at all, so this compiler-tracking package for systemtap
 # has no installable candidate. Non-essential (debug/tracing tooling only).
