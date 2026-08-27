@@ -25,8 +25,12 @@ get_prjconf_parameter()
     fi
 }
 
-# default to the parent directory name
-: ${RECIPEFILE:="$(basename $(pwd))"}
+# The image name, fixed rather than taken from the directory. It used to
+# default to "$(basename $(pwd))", which meant renaming the checkout silently
+# renamed the ISO: the tree moved to danos-sources/build-iso and the next build
+# would have produced build-iso_<stamp>.iso. Still overridable from the
+# environment for a one-off build.
+: ${RECIPEFILE:="i-danos"}
 # for reproducible builds
 if [ ! -z "$SOURCE_DATE_EPOCH" ]; then
     BUILD_TIME="$SOURCE_DATE_EPOCH"
@@ -44,7 +48,11 @@ BUILDSTAMP="$(date +"%Y%m%dT%H%M" -d @$BUILD_TIME)"
 # correct one vyatta-version had written, and the banner degenerated to
 # "DANOS (Kington) 2111 (Kington)".
 PROJECT_STAMP_DATE=$(date -u +'%Y%m%d' -d @${BUILD_TIME})
-PROJECT_ID="$(get_prjconf_parameter _vyatta_pretty_name):Shipping:$(get_prjconf_parameter _vyatta_version_id):${PROJECT_STAMP_DATE}"
+# The release id, from %_vyatta_version_id in build.dist. Read once: it names
+# the ISO, the ISO volume and the trailing bracket of "show version", and those
+# three disagreeing is exactly the kind of thing nobody notices.
+VERSION_ID=$(get_prjconf_parameter _vyatta_version_id)
+PROJECT_ID="$(get_prjconf_parameter _vyatta_pretty_name):Shipping:${VERSION_ID}:${PROJECT_STAMP_DATE}"
 
 # create environment file read by chroot hooks -- truncated, not appended:
 # the hooks source it and the last assignment wins, so appending each build
@@ -55,7 +63,7 @@ PROJECT_ID="${PROJECT_ID}"
 RECIPEFILE="${RECIPEFILE}"
 EOF
 
-IMAGE_NAME="${RECIPEFILE%.livebuild}_${BUILDSTAMP}"
+IMAGE_NAME="${RECIPEFILE%.livebuild}_${VERSION_ID}_${BUILDSTAMP}"
 
 LINUX_FLAVOURS=$(grep -s -h linux-image config/package-lists/*.chroot | grep -v '^#' | sed "s/linux-image-//g")
 
@@ -65,7 +73,7 @@ fi
 
 ISO_APPLICATION=$(get_prjconf_parameter _vyatta_pretty_name)
 ISO_PUBLISHER=$(get_prjconf_parameter _vyatta_name)
-ISO_VOLUME=$(get_prjconf_parameter _vyatta_version_id)
+ISO_VOLUME="${VERSION_ID}"
 
 ONIE=$(get_prjconf_parameter _onie)
 if [ "$ONIE" != "true" ] && [ "$ONIE" != "false" ]; then
