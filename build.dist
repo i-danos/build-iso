@@ -11,7 +11,7 @@
 # the old one.
 #
 # Install into the build container with:
-#   docker cp danos-2110b/build.dist danos-2110b-build:/.build/build.dist
+#   docker cp build.dist danos-2110b-build:/.build/build.dist
 %_project Kington
 %_vyatta_name Disaggregated Network Operating System
 %_vyatta_pretty_name DANOS
