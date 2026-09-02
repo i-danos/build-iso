@@ -41,12 +41,12 @@ fi
 BUILDSTAMP="$(date +"%Y%m%dT%H%M" -d @$BUILD_TIME)"
 
 # VYATTA_PROJECT_ID is the build stamp shown as the trailing bracket of
-# "show version", e.g. DANOS (Kington) 2111 (DANOS:Shipping:2111:20260820).
+# "show version", e.g. DANOS (Lancaster) 2608 (DANOS:Shipping:2608:20260902).
 # It is not the codename: _project holds that, and it already reaches
 # os-release through PRETTY_NAME. Passing the codename here produced a
 # second VYATTA_PROJECT_ID line in /etc/os-release that shadowed the
 # correct one vyatta-version had written, and the banner degenerated to
-# "DANOS (Kington) 2111 (Kington)".
+# "DANOS (Lancaster) 2608 (Lancaster)".
 PROJECT_STAMP_DATE=$(date -u +'%Y%m%d' -d @${BUILD_TIME})
 # The release id, from %_vyatta_version_id in build.dist. Read once: it names
 # the ISO, the ISO volume and the trailing bracket of "show version", and those

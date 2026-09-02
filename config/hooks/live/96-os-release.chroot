@@ -15,7 +15,7 @@ ln -fs /etc/os-release.vyatta /etc/os-release
 # VYATTA_PROJECT_ID in os-release.vyatta, so appending left the file with two
 # of them. Parsers take the last assignment, which happened to be ours, so the
 # banner was right by luck -- and the same collision in the other order once
-# degraded it to "DANOS (Kington) 2111 (Kington)".
+# degraded it to "DANOS (Lancaster) 2608 (Lancaster)".
 #
 # /etc/os-release is a symlink to os-release.vyatta and "sed -i" would replace
 # the link with a regular file, so resolve it and edit the target.

@@ -1,3 +1,17 @@
+build-iso (2608) unstable; urgency=medium
+
+  * Retarget the live-build project at Debian 13 and drop vendor hardware
+  * Name the image i-danos and put the release id in it
+  * Add a tracked build.dist so the release id reaches the image
+  * Replace os-release keys instead of appending them
+  * Add an overlay for building a test image with an out-of-band port
+  * Move the test image's management port off the slots the suites use
+  * test-overlay: bring the management port up at boot
+  * hooks: drop the user-isolation off switch, and boot into the sandbox
+  * Release codename Lancaster, following kington in the L slot
+
+ -- i-danos dev <dev@i-danos.dev>  Thu, 03 Sep 2026 07:05:21 +0800
+
 build-iso (2111) unstable; urgency=medium
 
   [ Simon Barber ]
