@@ -1,0 +1,27 @@
+# TEST IMAGE ONLY -- bring the out-of-band management port up at boot.
+#
+# The management NIC is deliberately kept out of the dataplane: the suites open
+# by running "delete interfaces dataplane", which would otherwise take the
+# management path down with them. dataplane.conf excludes ens30 and ens31 for
+# that reason.
+#
+# Being outside the dataplane also puts it outside the DANOS CLI, which models
+# dataplane, loopback, bridge, bonding and tunnel interfaces and nothing else.
+# There is no "set interfaces ens31" to write, so this cannot be part of a
+# configuration the CLI owns and has to be here instead.
+#
+# It used to be done at prep time, with "sudo dhclient ens31" over the console.
+# That stopped working when the image went back to booting into the CLI
+# sandbox, where sudo, ip and dhclient are all out of reach -- and it was the
+# wrong place regardless: a real deployment brings its management port up on
+# its own, before anyone logs in, not as a step in a test script.
+#
+# allow-hotplug rather than auto, and both slots listed, so one image serves a
+# one-NIC and a two-NIC management setup: a slot that is not present simply
+# never fires, where "auto" on a missing interface fails networking.service.
+
+allow-hotplug ens30
+iface ens30 inet dhcp
+
+allow-hotplug ens31
+iface ens31 inet dhcp
