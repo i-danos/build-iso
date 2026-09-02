@@ -12,7 +12,7 @@
 #
 # Install into the build container with:
 #   docker cp build.dist danos-2110b-build:/.build/build.dist
-%_project Kington
+%_project Lancaster
 %_vyatta_name Disaggregated Network Operating System
 %_vyatta_pretty_name DANOS
 %_vyatta_version_id 2608
