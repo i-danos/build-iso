@@ -10,9 +10,15 @@
 # the new release on the Version: line while the bracket and the ISO label keep
 # the old one.
 #
+# The release codename is NOT here. It lives in the vyatta-version package --
+# _buildconfig's %_project, which gen_files turns into PRETTY_NAME and
+# VERSION_CODENAME, plus a hardcoded fallback in get_vyatta_version. This file
+# carried a %_project line for a while and nothing ever read it: auto/config
+# mentions it only in a comment. Two ISOs were built against a changed value
+# here and both still said Kington.
+#
 # Install into the build container with:
 #   docker cp build.dist danos-2110b-build:/.build/build.dist
-%_project Lancaster
 %_vyatta_name Disaggregated Network Operating System
 %_vyatta_pretty_name DANOS
 %_vyatta_version_id 2608
