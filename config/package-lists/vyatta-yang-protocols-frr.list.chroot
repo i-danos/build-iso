@@ -13,6 +13,7 @@ vyatta-op-protocols-frr-ospfv3-v1-yang
 vyatta-op-protocols-frr-pim-v1-yang
 vyatta-op-protocols-frr-pim6-v1-yang
 vyatta-op-protocols-frr-bfd-v1-yang
+vyatta-op-protocols-frr-rip-v1-yang
 vyatta-op-protocols-frr-zebra-v1-yang
 vyatta-op-show-ip-ipv6-route-v1-yang
 vyatta-op-show-ip-ipv6-route-routing-instance-v1-yang
@@ -34,6 +35,7 @@ vyatta-protocols-frr-ospfv3-v1-yang
 vyatta-protocols-frr-pim-v1-yang
 vyatta-protocols-frr-pim6-v1-yang
 vyatta-protocols-frr-bfd-v1-yang
+vyatta-protocols-frr-rip-v1-yang
 vyatta-protocols-frr-switch-vif-ospf-v1-yang
 vyatta-protocols-frr-switch-vif-ospfv3-v1-yang
 vyatta-protocols-static-routing-instance-v1-yang
