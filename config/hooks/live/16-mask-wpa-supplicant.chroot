@@ -1,0 +1,24 @@
+#!/bin/sh
+# Keep wpa_supplicant off by default.
+#
+# 802.1X brings hostapd and wpasupplicant into the image. hostapd's own service
+# arrives masked, so installing it starts nothing. wpa_supplicant's does not --
+# it arrives enabled, and "systemctl is-enabled wpa_supplicant" on a box where
+# the package was installed by hand answers "enabled".
+#
+# Enabled means it starts at boot on every DANOS box, whether or not anything
+# is authenticating. That is a daemon the image did not run before, added as a
+# side effect of packaging a feature almost nobody will turn on. Mask it to
+# match hostapd's posture: present, configured by an operator, started
+# deliberately.
+#
+# Masking rather than disabling, because a disabled unit can still be pulled in
+# by another unit's Wants=.
+
+set -e
+
+if [ -e /lib/systemd/system/wpa_supplicant.service ] ||
+   [ -e /usr/lib/systemd/system/wpa_supplicant.service ]
+then
+    systemctl mask wpa_supplicant.service
+fi
