@@ -1,0 +1,27 @@
+#
+# IEEE 802.1X port authentication.
+#
+# hostapd is the authenticator, in its wired mode, and carries the RADIUS
+# client; wpasupplicant provides wpa_supplicant, needed to test a port from the
+# supplicant side and useful on a box that is itself authenticating upstream.
+# Both come from Debian -- neither is a DANOS package.
+#
+# They were absent until 2608. The dataplane change that made 802.1X possible
+# was the EAPOL punt in ether_forward_process(); with it in place, EAP-MD5
+# completes over a dataplane port, but only with these installed, and an
+# earlier verification run reported an authentication failure that was really
+# a missing binary.
+#
+# Checked on a box where both were installed by hand, because the two behave
+# differently and only one of them is harmless by default:
+#
+#   hostapd.service          masked    -- installing it starts nothing
+#   wpa_supplicant.service   enabled   -- would start at boot on every image
+#
+# A supplicant daemon running on every DANOS box is not something packaging a
+# feature should introduce, so hooks/live/16-mask-wpa-supplicant.chroot masks
+# it to match hostapd's posture: present, configured by an operator, started
+# deliberately.
+#
+hostapd
+wpasupplicant
