@@ -25,6 +25,7 @@ vyatta-policy-route-deviation-danos-v1-yang
 vyatta-policy-route-v1-yang
 vyatta-protocols-frr-bgp-v1-yang
 vyatta-protocols-frr-bgp-routing-instance-v1-yang
+vyatta-protocols-frr-evpn-l3vni-v1-yang
 vyatta-protocols-frr-isis-v1-yang
 vyatta-protocols-frr-ldp-v1-yang
 vyatta-protocols-frr-next-hop-v1-yang
