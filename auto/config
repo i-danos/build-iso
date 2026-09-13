@@ -85,7 +85,7 @@ fi
 # from this host, deb.debian.org runs at about 7.5 MB/s against Tsinghua's
 # 14 MB/s, and the difference over a whole chroot is tens of minutes.
 #
-# Tsinghua rather than Aliyun, which this used and which broke the build.
+# Huawei rather than Aliyun, which this used and which broke the build.
 # Aliyun's trixie was two months stale -- Release dated 11 July against
 # 12 September everywhere else -- so it served perl 5.40.1-6 while the point
 # release had moved trixie/main to 5.40.1-6+deb13u1. Packages OBS builds
@@ -98,10 +98,18 @@ fi
 # It had been survivable only because nothing on OBS had yet been rebuilt
 # against the newer perl.
 #
-# A mirror is a cache with no obligation to be current, so any replacement
-# needs checking rather than trusting. Tsinghua, USTC and Huawei all carried
-# a Release timestamp identical to deb.debian.org's when this was changed;
-# Aliyun did not.
+# A mirror is a cache with no obligation to be current or even to serve you,
+# so a replacement needs checking on both counts. Tsinghua, USTC and Huawei
+# all carried a Release timestamp identical to deb.debian.org's; Aliyun did
+# not. Tsinghua was then tried and rejected: it serves dists/ and returns 403
+# for every request under pool/, over HTTP and HTTPS alike, so the indices
+# fetch and every package fails. Freshness was checked and reachability was
+# assumed, and the build got as far as downloading before saying so.
+#
+# Measured from inside the build container, on a file that exists -- a 404
+# returns in milliseconds and looks like a fast mirror:
+#
+#     huawei   5.5 MB/s      ustc   3.1 MB/s      deb.debian.org  2.2 MB/s
 #
 # The binary mirror stays on deb.debian.org, since that address is written into
 # the sources.list inside the ISO and the product should not carry a regional
@@ -123,15 +131,15 @@ lb config noauto \
     --distribution trixie \
     --debian-installer-distribution trixie \
     --parent-debian-installer-distribution trixie \
-    --mirror-bootstrap http://mirrors.tuna.tsinghua.edu.cn/debian/ \
+    --mirror-bootstrap http://repo.huaweicloud.com/debian/ \
     --mirror-binary http://deb.debian.org/debian/ \
     --mirror-binary-security http://deb.debian.org/debian-security/ \
-    --mirror-chroot http://mirrors.tuna.tsinghua.edu.cn/debian/ \
-    --mirror-chroot-security http://mirrors.tuna.tsinghua.edu.cn/debian-security/ \
+    --mirror-chroot http://repo.huaweicloud.com/debian/ \
+    --mirror-chroot-security http://repo.huaweicloud.com/debian-security/ \
     --parent-mirror-binary http://deb.debian.org/debian/ \
     --parent-mirror-binary-security http://deb.debian.org/debian-security/ \
-    --parent-mirror-chroot http://mirrors.tuna.tsinghua.edu.cn/debian/ \
-    --parent-mirror-chroot-security http://mirrors.tuna.tsinghua.edu.cn/debian-security/ \
+    --parent-mirror-chroot http://repo.huaweicloud.com/debian/ \
+    --parent-mirror-chroot-security http://repo.huaweicloud.com/debian-security/ \
     --parent-mirror-debian-installer http://deb.debian.org/debian/ \
     --mirror-debian-installer http://deb.debian.org/debian/ \
     --archive-areas "main contrib non-free non-free-firmware" \
