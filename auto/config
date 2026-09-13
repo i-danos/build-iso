@@ -81,9 +81,28 @@ if [ "$ONIE" != "true" ] && [ "$ONIE" != "false" ]; then
     ONIE="false"
 fi
 
-# bootstrap/chroot fetch packages from the Aliyun mirror: measured from this
-# host, deb.debian.org runs at about 30 KB/s against Aliyun's 2 MB/s — roughly
-# 68x, the difference between a build taking tens of minutes and taking hours.
+# bootstrap/chroot fetch packages from a regional mirror, for speed: measured
+# from this host, deb.debian.org runs at about 7.5 MB/s against Tsinghua's
+# 14 MB/s, and the difference over a whole chroot is tens of minutes.
+#
+# Tsinghua rather than Aliyun, which this used and which broke the build.
+# Aliyun's trixie was two months stale -- Release dated 11 July against
+# 12 September everywhere else -- so it served perl 5.40.1-6 while the point
+# release had moved trixie/main to 5.40.1-6+deb13u1. Packages OBS builds
+# against current Debian then cannot install:
+#
+#     libvci-perl : Depends: perl (>= 5.40.1-6+deb13u1)
+#                   but 5.40.1-6 is to be installed
+#
+# which apt reports as held broken packages, naming perl and not the mirror.
+# It had been survivable only because nothing on OBS had yet been rebuilt
+# against the newer perl.
+#
+# A mirror is a cache with no obligation to be current, so any replacement
+# needs checking rather than trusting. Tsinghua, USTC and Huawei all carried
+# a Release timestamp identical to deb.debian.org's when this was changed;
+# Aliyun did not.
+#
 # The binary mirror stays on deb.debian.org, since that address is written into
 # the sources.list inside the ISO and the product should not carry a regional
 # mirror. Set here rather than in config/bootstrap because lb build runs
@@ -104,15 +123,15 @@ lb config noauto \
     --distribution trixie \
     --debian-installer-distribution trixie \
     --parent-debian-installer-distribution trixie \
-    --mirror-bootstrap http://mirrors.aliyun.com/debian/ \
+    --mirror-bootstrap http://mirrors.tuna.tsinghua.edu.cn/debian/ \
     --mirror-binary http://deb.debian.org/debian/ \
     --mirror-binary-security http://deb.debian.org/debian-security/ \
-    --mirror-chroot http://mirrors.aliyun.com/debian/ \
-    --mirror-chroot-security http://mirrors.aliyun.com/debian-security/ \
+    --mirror-chroot http://mirrors.tuna.tsinghua.edu.cn/debian/ \
+    --mirror-chroot-security http://mirrors.tuna.tsinghua.edu.cn/debian-security/ \
     --parent-mirror-binary http://deb.debian.org/debian/ \
     --parent-mirror-binary-security http://deb.debian.org/debian-security/ \
-    --parent-mirror-chroot http://mirrors.aliyun.com/debian/ \
-    --parent-mirror-chroot-security http://mirrors.aliyun.com/debian-security/ \
+    --parent-mirror-chroot http://mirrors.tuna.tsinghua.edu.cn/debian/ \
+    --parent-mirror-chroot-security http://mirrors.tuna.tsinghua.edu.cn/debian-security/ \
     --parent-mirror-debian-installer http://deb.debian.org/debian/ \
     --mirror-debian-installer http://deb.debian.org/debian/ \
     --archive-areas "main contrib non-free non-free-firmware" \
