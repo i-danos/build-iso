@@ -1,2 +1,22 @@
-# vyatta-op-show-platform-v1-yang  # hardware platform op commands
-# vyatta-op-show-platform-dataplane-v1-yang  # hardware platform op commands
+#
+# "show platform", and the per-object programming state under it.
+#
+# Both were commented out when vendor hardware was dropped, alongside IPMI/BMC,
+# SFP, the opennsl switch plugin and the QoS hardware offload package. Those
+# belong out of a software-only image. These two do not, and the name is what
+# made them look alike.
+#
+# What "show platform dataplane" reports is which backend holds each forwarding
+# object and in what state -- full, partial, no-resource, no-support,
+# not-needed, error. With no offload backend loaded the answer for every object
+# is the software data plane, and that is a real answer about a working system,
+# not an empty one about missing hardware. It is the only operator-facing view
+# of the FAL programming state there is: everything else about it is reachable
+# only from vplsh, which is not a CLI and cannot be driven by the test suites.
+#
+# vyatta-op-show-platform-v1-yang carries the "show platform" node and its help
+# text, and nothing else -- no hardware subcommands come with it. The dataplane
+# package under it carries the YANG and the script it calls.
+#
+vyatta-op-show-platform-v1-yang
+vyatta-op-show-platform-dataplane-v1-yang
