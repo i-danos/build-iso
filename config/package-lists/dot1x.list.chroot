@@ -25,3 +25,9 @@
 #
 hostapd
 wpasupplicant
+
+# The VCI component and its YANG. It generates hostapd's configuration from the
+# DANOS configuration, manages hostapd per port, and turns hostapd's
+# authentication events into dataplane port authorisation.
+vyatta-dot1x
+vyatta-dot1x-v1-yang
