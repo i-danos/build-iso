@@ -118,12 +118,13 @@ fi
 lb config noauto \
     --apt apt \
     --apt-indices false \
-    --apt-options "--yes --allow-downgrades -o Acquire::Check-Valid-Until=false -o Acquire::Languages=none" \
+    --apt-options "--yes --allow-downgrades -o Acquire::Check-Valid-Until=false -o Acquire::Languages=none -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false" \
     --apt-recommends false \
     --apt-source-archives false \
     --backports false \
     --build-with-chroot true \
     --cache-indices false \
+    --apt-indices true \
     --checksums "md5 sha256" \
     --chroot-filesystem squashfs \
     --debconf-frontend noninteractive \
