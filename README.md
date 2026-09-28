@@ -4,6 +4,10 @@ This repository provides the live-build recipe for a DANOS 2608 / Debian 13 amd6
 The official flow is to build Debian packages from source, publish an APT repository, and generate an ISO with live-build. 
 The current pipeline uses OBS for package builds and can publish immutable repository snapshots through Cloudflare R2.
 
+## DANOS Architecture
+
+![DANOS Lancaster on Debian Trixie architecture](docs/images/DANOS-Lancaster-Trixie-Open-2026-09-15.png)
+
 ## Local Container Build
 
 Docker is required. 
