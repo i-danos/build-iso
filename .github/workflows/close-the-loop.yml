@@ -28,7 +28,9 @@ jobs:
           name: close-the-loop-logs
           path: |
             /tmp/close-the-loop/obs-manifest.json
-            /tmp/close-the-loop/iso-build.log
+            /tmp/close-the-loop/iso-build-product.log
+            /tmp/close-the-loop/iso-build-test.log
+            /tmp/close-the-loop/product-test-package-diff.txt
             /tmp/close-the-loop/boot.log
             /tmp/close-the-loop/boot-console-transcript.log
             /tmp/close-the-loop/provenance.json

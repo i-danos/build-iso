@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 : "${DANOS_APT_URL:?DANOS_APT_URL is required}"
 : "${SOURCE_DATE_EPOCH:=}"
+: "${ISO_VARIANT:=product}"
 
 WORK=/build-iso
 rm -rf "$WORK"
@@ -42,6 +43,24 @@ mv "$tmp_sources" config/archives/danos.list.chroot
 # package index available during live-build's early chroot apt pass; the
 # archive hook still removes build-only sources from the final ISO.
 printf 'deb [trusted=yes] %s ./\n' "${DANOS_APT_URL%/}/" >> config/apt/sources.list
+
+# The test variant carries one content-only overlay: a preseeded dataplane
+# exclude-interfaces entry plus a management interfaces.d file, so the test
+# suites' "delete interfaces dataplane" doesn't cut their own connection. It
+# never adds or removes a package -- only file content inside packages
+# already selected -- so it must never show up as a package-set difference
+# against the product variant. See test-overlay/ and
+# toolkit/build/90-mk-test-iso.sh for the original (non-containerized)
+# version of this same staging step.
+if [ "$ISO_VARIANT" = "test" ]; then
+  echo "I: staging test overlay (ISO_VARIANT=test)"
+  ( cd test-overlay && find . -type f ) | while read -r f; do
+    install -D -m644 "test-overlay/${f#./}" "config/includes.chroot_after_packages/${f#./}"
+  done
+elif [ "$ISO_VARIANT" != "product" ]; then
+  echo "unknown ISO_VARIANT: $ISO_VARIANT (want product or test)" >&2
+  exit 1
+fi
 
 export SOURCE_DATE_EPOCH
 ./auto/config
