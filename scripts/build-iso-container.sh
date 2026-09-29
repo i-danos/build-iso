@@ -16,6 +16,7 @@ fi
 docker run --rm --privileged \
   --env DANOS_APT_URL="$DANOS_APT_URL" \
   --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-}" \
+  --env ISO_VARIANT="${ISO_VARIANT:-product}" \
   --volume "$ROOT:/workspace:ro" \
   --volume "$OUTPUT:/output" \
   "$IMAGE"
