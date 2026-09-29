@@ -1,0 +1,37 @@
+name: Close the loop
+
+# Manual trigger only, on purpose. This closes OBS -> R2 -> containerized ISO
+# -> QEMU acceptance -> provenance archive as one job. It needs KVM, privileged
+# docker, and the osc/wrangler credentials already configured on the runner
+# host, none of which a GitHub-hosted runner has -- so it only ever runs on
+# our self-hosted runner registered against this repo. See
+# toolkit/release/close-the-loop.sh for what each stage actually checks, and
+# the danos-r2-containerized-iso-flow project note for why each check exists.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  close-the-loop:
+    runs-on: [self-hosted, danos]
+    timeout-minutes: 90
+    steps:
+      - name: Pull latest toolkit
+        run: git -C /home/aikon/danos/build-iso/danos-sources/toolkit pull --ff-only
+
+      - name: Run close-the-loop.sh
+        run: /home/aikon/danos/build-iso/danos-sources/toolkit/release/close-the-loop.sh
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: close-the-loop-logs
+          path: |
+            /tmp/close-the-loop/obs-manifest.json
+            /tmp/close-the-loop/iso-build.log
+            /tmp/close-the-loop/boot.log
+            /tmp/close-the-loop/boot-console-transcript.log
+            /tmp/close-the-loop/provenance.json
+            /tmp/close-the-loop/upload-failures.log
+          if-no-files-found: ignore
+          retention-days: 30
