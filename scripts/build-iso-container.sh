@@ -36,7 +36,16 @@ if [ -n "${https_proxy:-${HTTPS_PROXY:-}}" ] || [ -n "${http_proxy:-${HTTP_PROXY
     [ -n "$val" ] || continue
     proxy_args+=(--env "$var=$val")
   done
-  proxy_args+=(--env "no_proxy=localhost,127.0.0.0/8,::1" --env "NO_PROXY=localhost,127.0.0.0/8,::1")
+  # Exclude the domestic build-time mirrors (Aliyun, Huawei Cloud) from the
+  # proxy -- they're fast and reliable reached directly, and were the
+  # comment in config/apt/sources.list's whole reason for existing (68x
+  # deb.debian.org's throughput from this host). Routing them through the
+  # proxy anyway degraded them to the same congestion-prone path as the
+  # genuinely GFW-blocked domains (r2.aikon.qzz.io, deb.debian.org) --
+  # confirmed here: package fetches from mirrors.aliyun.com started failing
+  # only after the proxy was made unconditional for all container traffic.
+  no_proxy_list="localhost,127.0.0.0/8,::1,mirrors.aliyun.com,repo.huaweicloud.com"
+  proxy_args+=(--env "no_proxy=$no_proxy_list" --env "NO_PROXY=$no_proxy_list")
 fi
 
 docker run --rm --privileged \
