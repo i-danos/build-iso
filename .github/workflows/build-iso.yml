@@ -1,0 +1,90 @@
+name: Build ISO
+
+# Scheduled ISO build that runs entirely on GitHub, independent of the local
+# build host. It builds from an existing, immutable R2 snapshot (the apt
+# repository close-the-loop.sh publishes after OBS is all green) and does not
+# touch OBS or R2 write credentials, so it needs no secrets. A Codespace cannot
+# do this job: it has no scheduler and sleeps when idle. A GitHub-hosted runner
+# can, and is free for a public repository.
+#
+# What it does not do: boot the image (QEMU acceptance) or run the Robot suites.
+# Those stay in toolkit/release/close-the-loop.sh and vm/regression.sh.
+on:
+  schedule:
+    - cron: '17 2 * * 1'   # Mondays 02:17 UTC
+  workflow_dispatch:
+    inputs:
+      snapshot:
+        description: 'R2 snapshot timestamp (default: the one named by snapshots/LATEST)'
+        required: false
+        default: ''
+
+env:
+  R2_DOMAIN: https://r2.aikon.qzz.io
+  REPO_CHANNEL: '2608'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [product, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      # A hosted runner has ~14 GB free; a build needs about 10. Drop what
+      # this job never uses.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          docker image prune -af > /dev/null || true
+          df -h /
+
+      - name: Resolve the snapshot
+        id: snap
+        run: |
+          ts="${{ github.event.inputs.snapshot }}"
+          if [ -z "$ts" ]; then
+            # Query string against a CDN that has served stale indices before.
+            ts=$(curl -fsS --retry 5 --retry-delay 5 "$R2_DOMAIN/danos-apt/$REPO_CHANNEL/snapshots/LATEST?t=$(date +%s)" | tr -d '[:space:]')
+          fi
+          echo "$ts" | grep -Eq '^[0-9]{8}T[0-9]{6}Z$' || { echo "bad snapshot id: '$ts'" >&2; exit 1; }
+          base="$R2_DOMAIN/danos-apt/$REPO_CHANNEL/snapshots/$ts"
+          curl -fsSI --retry 5 --retry-delay 5 "$base/_READY" > /dev/null \
+            || { echo "snapshot $ts has no _READY marker" >&2; exit 1; }
+          echo "ts=$ts" >> "$GITHUB_OUTPUT"
+          echo "url=$base/" >> "$GITHUB_OUTPUT"
+          echo "snapshot: $ts"
+
+      - name: Build the ${{ matrix.variant }} ISO
+        env:
+          DANOS_APT_URL: ${{ steps.snap.outputs.url }}
+          ISO_VARIANT: ${{ matrix.variant }}
+          OUTPUT: ${{ github.workspace }}/out
+        run: ./scripts/build-iso-container.sh
+
+      - name: Check what was built
+        run: |
+          cd out
+          iso=$(ls *.hybrid.iso)
+          echo "iso: $iso"
+          sha256sum "$iso" | tee "$iso.sha256.check"
+          # The Robot suites require DANOS:Shipping:2608 in "show version"; the
+          # image name carries the same release id (see auto/config).
+          case "$iso" in i-danos_2608_*) ;; *) echo "unexpected image name: $iso" >&2; exit 1;; esac
+          # The patched FRR must be the one in the image (toolkit/frr-patches).
+          grep -E '^frr[[:space:]]' *.packages | tee /dev/stderr | grep -q danos \
+            || { echo "frr in the image is not the patched build" >&2; exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: danos-iso-${{ matrix.variant }}-${{ steps.snap.outputs.ts }}
+          path: |
+            out/*.hybrid.iso
+            out/*.sha256
+            out/*.packages
+            out/*.contents
+          retention-days: 30
+          if-no-files-found: error
