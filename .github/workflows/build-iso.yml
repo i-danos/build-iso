@@ -62,6 +62,9 @@ jobs:
         env:
           DANOS_APT_URL: ${{ steps.snap.outputs.url }}
           ISO_VARIANT: ${{ matrix.variant }}
+          # The repository defaults are China mirrors; the runner is in the US.
+          DEBIAN_MIRROR: http://deb.debian.org/debian/
+          DEBIAN_SECURITY_MIRROR: http://deb.debian.org/debian-security/
           OUTPUT: ${{ github.workspace }}/out
         run: ./scripts/build-iso-container.sh
 
