@@ -103,3 +103,70 @@ jobs:
             out/*.contents
           retention-days: 30
           if-no-files-found: error
+
+  # Boots the product image under QEMU/KVM and reads "show version" back over
+  # the serial console, the same acceptance close-the-loop.sh runs locally
+  # (stage 5), using the same scripts from the toolkit repository.
+  accept:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: i-danos/toolkit
+          path: toolkit
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: danos-iso-product-*
+          path: iso
+          merge-multiple: true
+
+      - name: Install QEMU and helpers
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 socat python3 xorriso > /dev/null
+          # /dev/kvm exists on the hosted runners but is not world-accessible.
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules > /dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm || { echo "no /dev/kvm on this runner; cannot boot-test" >&2; exit 1; }
+
+      - name: Boot and read back show version
+        run: |
+          set -u
+          export OBS_DIR="$RUNNER_TEMP/obs"
+          iso=$(ls "$PWD"/iso/*.hybrid.iso)
+          # boot-vm.sh looks for the kernel and initrd in <iso dir>/binary/live
+          mkdir -p iso/binary
+          xorriso -osirrox on -indev "$iso" -extract /live iso/binary/live > /dev/null 2>&1
+          bash toolkit/vm/boot-vm.sh "$iso" gha 12222 4096 > boot.log 2>&1 || true
+          grep -q "console socket up" boot.log || { cat boot.log; echo "qemu did not start" >&2; exit 1; }
+          run="$OBS_DIR/run/gha"
+          socat -u UNIX-CONNECT:"$run/console.sock" - > "$run/console.log" 2>/dev/null &
+          socat_pid=$!
+          up=false
+          for i in $(seq 1 60); do
+            sleep 5
+            if grep -q "login:" "$run/console.log" 2>/dev/null; then up=true; break; fi
+            if grep -qiE "kernel panic|Emergency Mode" "$run/console.log" 2>/dev/null; then break; fi
+          done
+          kill "$socat_pid" 2>/dev/null || true; wait "$socat_pid" 2>/dev/null || true
+          $up || { tail -40 "$run/console.log"; echo "never reached a login prompt" >&2; exit 1; }
+          timeout 150 python3 toolkit/vm/console.py "$run/console.sock" tmpuser tmppwd \
+            "show version | cat" "show interfaces | cat" 2>&1 | tr -d '\r' | tee transcript.log
+          kill "$(cat "$run/qemu.pid")" 2>/dev/null || true
+          grep -q '^Version:' transcript.log || { echo "no Version line" >&2; exit 1; }
+          grep -q 'DANOS:Shipping:2608:' transcript.log || { echo "version string is not DANOS:Shipping:2608" >&2; exit 1; }
+          grep -qE '^dp[0-9a-z]+ ' transcript.log || { echo "no dataplane interface listed" >&2; exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accept-transcript
+          path: |
+            transcript.log
+            boot.log
+          if-no-files-found: ignore
+          retention-days: 30
