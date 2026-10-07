@@ -17,6 +17,16 @@ get_prjconf_parameter()
         BUILDCONFIG=$( ls -1 $TOPDIR/SOURCES/_buildconfig* 2>/dev/null | head -n1 || true )
     fi
 
+    # Outside OBS there is no /.build/build.dist. The checkout's own build.dist
+    # is the same file, so use it. The old fallback answered "vyatta" for every
+    # parameter, which made the container-built ISOs say
+    # "vyatta:Shipping:vyatta:<date>" in "show version" and named them
+    # i-danos_vyatta_*; the Robot suites check for "DANOS:Shipping:2608".
+    if { [ -z "$BUILDCONFIG" ] || [ ! -e "$BUILDCONFIG" ]; } && [ -e ./build.dist ]
+    then
+        BUILDCONFIG=./build.dist
+    fi
+
     if [ -n "$BUILDCONFIG" ] && [ -e "$BUILDCONFIG" ]
     then
         grep -E "^%$PARAM " $BUILDCONFIG | sed "s/^%$PARAM //g" | tail -n1
