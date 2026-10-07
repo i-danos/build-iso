@@ -125,6 +125,13 @@ fi
 # the sources.list inside the ISO and the product should not carry a regional
 # mirror. Set here rather than in config/bootstrap because lb build runs
 # lb config first and regenerates that file, discarding hand edits.
+# Where the chroot is built from. The defaults are what is fastest from the
+# local build host (China); a build outside it, such as the GitHub-hosted
+# workflow, sets these to a mirror that is close to it (deb.debian.org).
+# The binary-side mirrors below stay on deb.debian.org on purpose: that
+# address is written into the ISO's own /etc/apt/sources.list.
+: ${DEBIAN_MIRROR:=http://repo.huaweicloud.com/debian/}
+: ${DEBIAN_SECURITY_MIRROR:=http://repo.huaweicloud.com/debian-security/}
 lb config noauto \
     --apt apt \
     --apt-indices false \
@@ -142,15 +149,15 @@ lb config noauto \
     --distribution trixie \
     --debian-installer-distribution trixie \
     --parent-debian-installer-distribution trixie \
-    --mirror-bootstrap http://repo.huaweicloud.com/debian/ \
+    --mirror-bootstrap ${DEBIAN_MIRROR} \
     --mirror-binary http://deb.debian.org/debian/ \
     --mirror-binary-security http://deb.debian.org/debian-security/ \
-    --mirror-chroot http://repo.huaweicloud.com/debian/ \
-    --mirror-chroot-security http://repo.huaweicloud.com/debian-security/ \
+    --mirror-chroot ${DEBIAN_MIRROR} \
+    --mirror-chroot-security ${DEBIAN_SECURITY_MIRROR} \
     --parent-mirror-binary http://deb.debian.org/debian/ \
     --parent-mirror-binary-security http://deb.debian.org/debian-security/ \
-    --parent-mirror-chroot http://repo.huaweicloud.com/debian/ \
-    --parent-mirror-chroot-security http://repo.huaweicloud.com/debian-security/ \
+    --parent-mirror-chroot ${DEBIAN_MIRROR} \
+    --parent-mirror-chroot-security ${DEBIAN_SECURITY_MIRROR} \
     --parent-mirror-debian-installer http://deb.debian.org/debian/ \
     --mirror-debian-installer http://deb.debian.org/debian/ \
     --archive-areas "main contrib non-free non-free-firmware" \

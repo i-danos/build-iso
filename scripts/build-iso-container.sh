@@ -60,8 +60,13 @@ else
   docker build "${build_proxy_args[@]}" --tag "$IMAGE" "$ROOT"
 fi
 
+mirror_args=()
+[ -n "${DEBIAN_MIRROR:-}" ] && mirror_args+=(--env "DEBIAN_MIRROR=$DEBIAN_MIRROR")
+[ -n "${DEBIAN_SECURITY_MIRROR:-}" ] && mirror_args+=(--env "DEBIAN_SECURITY_MIRROR=$DEBIAN_SECURITY_MIRROR")
+
 docker run --rm --privileged \
   --env DANOS_APT_URL="$DANOS_APT_URL" \
+  "${mirror_args[@]}" \
   --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-}" \
   --env ISO_VARIANT="${ISO_VARIANT:-product}" \
   "${proxy_args[@]}" \

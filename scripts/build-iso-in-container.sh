@@ -44,6 +44,15 @@ mv "$tmp_sources" config/archives/danos.list.chroot
 # archive hook still removes build-only sources from the final ISO.
 printf 'deb [trusted=yes] %s ./\n' "${DANOS_APT_URL%/}/" >> config/apt/sources.list
 
+# config/apt/sources.list names Aliyun for the local host. Follow the same mirror
+# choice as auto/config when one was given.
+if [ -n "${DEBIAN_MIRROR:-}" ]; then
+  sed -i "s|http://mirrors.aliyun.com/debian/|${DEBIAN_MIRROR%/}/|" config/apt/sources.list
+fi
+if [ -n "${DEBIAN_SECURITY_MIRROR:-}" ]; then
+  sed -i "s|http://mirrors.aliyun.com/debian-security/|${DEBIAN_SECURITY_MIRROR%/}/|" config/apt/sources.list
+fi
+
 # The test variant carries one content-only overlay: a preseeded dataplane
 # exclude-interfaces entry plus a management interfaces.d file, so the test
 # suites' "delete interfaces dataplane" doesn't cut their own connection. It
