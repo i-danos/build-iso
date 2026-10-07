@@ -81,6 +81,18 @@ jobs:
           grep -E '^frr[[:space:]]' *.packages | tee /dev/stderr | grep -q danos \
             || { echo "frr in the image is not the patched build" >&2; exit 1; }
 
+      # What the Robot suites read back as "DANOS:Shipping:2608" in "show version",
+      # checked in the image itself so nobody has to download 600 MB to find out.
+      - name: Check the version string inside the image
+        run: |
+          sudo apt-get install -y -qq xorriso squashfs-tools > /dev/null
+          mkdir -p /tmp/live
+          xorriso -osirrox on -indev out/*.hybrid.iso -extract /live/filesystem.squashfs /tmp/live/filesystem.squashfs 2>/dev/null
+          id=$(unsquashfs -cat /tmp/live/filesystem.squashfs etc/os-release.vyatta-version | grep '^VYATTA_PROJECT_ID=')
+          echo "$id"
+          echo "$id" | grep -q '^VYATTA_PROJECT_ID="DANOS:Shipping:2608:[0-9]\{8\}"$' \
+            || { echo "unexpected version string in the image" >&2; exit 1; }
+
       - uses: actions/upload-artifact@v4
         with:
           name: danos-iso-${{ matrix.variant }}-${{ steps.snap.outputs.ts }}
