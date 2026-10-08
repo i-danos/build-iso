@@ -4,6 +4,20 @@ This repository provides the live-build recipe for a DANOS 2608 / Debian 13 amd6
 The official flow is to build Debian packages from source, publish an APT repository, and generate an ISO with live-build. 
 The current pipeline uses OBS for package builds and can publish immutable repository snapshots through Cloudflare R2.
 
+## Public test builds
+
+Pre-built test images are published on the
+[Releases page](https://github.com/i-danos/build-iso/releases) as pre-releases.
+**They are test builds, not for production.** How to verify, install and
+Secure-Boot-enroll an image, what was tested and the known limitations are in
+[docs/PUBLIC-TEST.md](docs/PUBLIC-TEST.md). Security reports:
+[SECURITY.md](SECURITY.md). Licenses and where to get the source:
+[LICENSING.md](LICENSING.md).
+
+A GitHub Actions workflow (`.github/workflows/build-iso.yml`) builds the product
+and test images weekly from the newest accepted R2 package snapshot, boots the
+product image under QEMU/KVM, and checks `show version`. It needs no secrets.
+
 ## DANOS Architecture
 
 ![DANOS Lancaster on Debian Trixie architecture](docs/images/DANOS-Lancaster-Trixie-Open-2026-09-15.png)
