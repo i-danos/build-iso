@@ -38,7 +38,9 @@ file is restored unchanged. It follows the DANOS convention: the repository uses
 SPDX tags, and a file with no `SPDX-License-Identifier` tag, or with
 `GPL-2.0-only`, is under the GNU GPL version 2. Files that carry another tag keep
 it; for example the Robot suites under `tests/` are `LGPL-2.1-only`. The
-`toolkit` repository follows the same convention and carries the same `LICENSE`.
+`toolkit` repository follows the same convention and carries the same `LICENSE`;
+its test harness (`vm/`, `suite/`) is tagged `LGPL-2.1-only`, like the Robot suites it
+drives, and everything else in it is `GPL-2.0-only`.
 
 New files should say which license they are under with an
 `SPDX-License-Identifier:` line, as the upstream DANOS repositories do.
