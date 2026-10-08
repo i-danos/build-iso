@@ -18,6 +18,13 @@ on:
         description: 'R2 snapshot timestamp (default: the one named by snapshots/LATEST)'
         required: false
         default: ''
+      publish:
+        description: 'Publish the accepted product ISO as a public GitHub pre-release'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 env:
   R2_DOMAIN: https://r2.aikon.qzz.io
@@ -170,3 +177,45 @@ jobs:
             boot.log
           if-no-files-found: ignore
           retention-days: 30
+
+  # Only when asked for. A scheduled run builds and boot-tests but does not
+  # publish, so the Releases page holds builds someone chose. Only the product
+  # image goes out: the test image carries a preseeded harness configuration.
+  publish:
+    needs: accept
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: danos-iso-product-*
+          path: iso
+          merge-multiple: true
+
+      - name: Create the pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SNAPSHOT_RUN: ${{ github.run_id }}
+        run: |
+          cd iso
+          iso=$(ls *.hybrid.iso)
+          tag="v${iso#i-danos_}"; tag="${tag%-amd64.hybrid.iso}"
+          sha256sum "$iso" > "$iso.sha256"
+          {
+            echo "DANOS 2608 (Lancaster) product image, **public test build, not for production**."
+            echo
+            echo "* Booted under QEMU/KVM by the build workflow before publication; \`show version\` reads \`DANOS:Shipping:2608\`. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${SNAPSHOT_RUN}"
+            echo "* Robot regression 81/81 on QEMU; also run on Celeron J1900 / Intel I211 hardware. Known limitations and what was not tested: docs/PUBLIC-TEST.md"
+            echo "* Secure Boot needs the signing certificate enrolled through MOK: docs/secure-boot/"
+            echo "* Live login \`tmpuser\` / \`tmppwd\` (live session only); \`install image\` sets your own administrator account."
+            echo "* Licenses and source: LICENSING.md. Security reports: SECURITY.md."
+            echo
+            echo "Verify: \`sha256sum -c $iso.sha256\`"
+          } > notes.md
+          gh release create "$tag" "$iso" "$iso.sha256" *.packages \
+            --prerelease --title "DANOS 2608 test build $tag" --notes-file notes.md
+          echo "published $tag"
