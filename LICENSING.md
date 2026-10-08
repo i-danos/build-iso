@@ -32,8 +32,13 @@ The image build recipe is this repository. The test and release tooling is
 
 ## Files in these repositories
 
-The build scripts, workflows and documentation in `build-iso` and `toolkit` do not
-yet have a top-level license file; the project owner has not chosen one. Files that
-carry their own license header keep it (for example the Robot suites under
-`tests/` are `LGPL-2.1-only`). Until a license file is added, do not assume any
-license for the original scripts beyond what a file's own header says.
+`build-iso` is the DANOS live-build recipe and carried the upstream `LICENSE` file
+until it was dropped by mistake when the recipe was retargeted at Debian 13; that
+file is restored unchanged. It follows the DANOS convention: the repository uses
+SPDX tags, and a file with no `SPDX-License-Identifier` tag, or with
+`GPL-2.0-only`, is under the GNU GPL version 2. Files that carry another tag keep
+it; for example the Robot suites under `tests/` are `LGPL-2.1-only`. The
+`toolkit` repository follows the same convention and carries the same `LICENSE`.
+
+New files should say which license they are under with an
+`SPDX-License-Identifier:` line, as the upstream DANOS repositories do.
