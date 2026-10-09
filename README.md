@@ -17,6 +17,12 @@ Secure-Boot-enroll an image, what was tested and the known limitations are in
 A GitHub Actions workflow (`.github/workflows/build-iso.yml`) builds the product
 and test images weekly from the newest accepted R2 package snapshot, boots the
 product image under QEMU/KVM, and checks `show version`. It needs no secrets.
+The same workflow runs the Robot regression (98 cases: BGP, IPsec, MPLS-LDP,
+firewall, REST, data-plane objects, BGP EVPN, multicast) on the test image weekly
+or when started with `regression=true`, uploads the results as the `robot-results`
+artifact, and opens an issue when a scheduled run fails. Start a build by hand with
+`gh workflow run build-iso.yml -R i-danos/build-iso -f regression=true`
+(add `-f publish=true` to publish the accepted image as a pre-release).
 
 ## DANOS Architecture
 
