@@ -267,8 +267,11 @@ jobs:
   # publish, so the Releases page holds builds someone chose. Only the product
   # image goes out: the test image carries a preseeded harness configuration.
   publish:
-    needs: accept
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true' }}
+    # Waits for the regression too: it was once left out of `needs`, and a build
+    # whose regression failed (97 of 98) went out with a note saying 98 of 98.
+    # A skipped regression is allowed (it was not asked for); a failed one is not.
+    needs: [accept, regression]
+    if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true' && needs.accept.result == 'success' && (needs.regression.result == 'success' || needs.regression.result == 'skipped') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -285,8 +288,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           SNAPSHOT_RUN: ${{ github.run_id }}
+          REGRESSION: ${{ needs.regression.result }}
         run: |
           cd iso
+          if [ "$REGRESSION" = success ]; then
+            reg="Robot regression 98/98 on QEMU (includes BGP EVPN and multicast)"
+          else
+            reg="Robot regression was not run for this build"
+          fi
           iso=$(ls *.hybrid.iso)
           tag="v${iso#i-danos_}"; tag="${tag%-amd64.hybrid.iso}"
           sha256sum "$iso" > "$iso.sha256"
@@ -294,7 +303,7 @@ jobs:
             echo "DANOS 2608 (Lancaster) product image, **public test build, not for production**."
             echo
             echo "* Booted under QEMU/KVM by the build workflow before publication; \`show version\` reads \`DANOS:Shipping:2608\`. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${SNAPSHOT_RUN}"
-            echo "* Robot regression 98/98 on QEMU (includes BGP EVPN and multicast); separate hardware checks on Celeron J1900 / Intel I211. Known limitations and what was not tested: docs/PUBLIC-TEST.md"
+            echo "* ${reg}; separate hardware checks on Celeron J1900 / Intel I211. Known limitations and what was not tested: docs/PUBLIC-TEST.md"
             echo "* Secure Boot needs the signing certificate enrolled through MOK: docs/secure-boot/"
             echo "* Live login \`tmpuser\` / \`tmppwd\` (live session only); \`install image\` sets your own administrator account."
             echo "* Licenses and source: LICENSING.md. Security reports: SECURITY.md."
