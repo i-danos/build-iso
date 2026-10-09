@@ -57,8 +57,10 @@ images from booting.
 
 ## What was tested
 
-* Robot suites (BGP, IPsec VPN, MPLS-LDP, firewall, REST, data-plane object model):
-  81 of 81 pass on QEMU. Disk install, upgrade and rollback, power-loss recovery
+* Robot suites (BGP, IPsec VPN, MPLS-LDP, firewall, REST, data-plane object model,
+  BGP EVPN over VXLAN, IPv4 SSM and IPv6 multicast):
+  98 of 98 pass on QEMU (the published pre-release was tested at 81 of 81, before
+  the BGP EVPN and multicast suites were added). Disk install, upgrade and rollback, power-loss recovery
   and a Secure Boot chain (OVMF virtual firmware) were also exercised.
 * Real hardware: Celeron J1900 with Intel I211 (four ports), OSPF and BGP between
   two boxes, QoS shaping, forwarding at about 940 Mbit/s TCP, same-version
@@ -76,8 +78,15 @@ images from booting.
   are not tested.
 * Small-packet forwarding is slow: about 0.22 Mpps for 64-byte packets, roughly 15 %
   of line rate on the test hardware.
-* Link-failure results come from taking the interface down in software, not from
-  pulling a cable.
+* Link-failure results come from two J1900 boxes joined by one cable: software
+  interface-down cycles and two rounds of real cable pulls (15 of 15 clean after
+  the FRR patch). One cable, one NIC family; other hardware is not covered.
+* DMVPN (NHRP over multipoint GRE) does not work. Multipoint GRE tunnels come up,
+  but an NHRP registration is returned to the sender by the data plane before it
+  is encapsulated, so a spoke can never register with its hub. `nhrpd` is not
+  started on the image and DANOS has no NHRP configuration. Point-to-point GRE,
+  IPsec, VXLAN and MPLS are unaffected. Details and the two candidate fixes:
+  `toolkit/docs/DEFECT-nhrp-mgre-slowpath.md`.
 * No upgrade from DANOS 2105. Install fresh and migrate the configuration; the
   2105 administrator password cannot be exported and has to be set again.
 * Secure Boot behaviour with a firmware revocation list (dbx) is not tested, and

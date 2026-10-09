@@ -7,8 +7,11 @@ name: Build ISO
 # do this job: it has no scheduler and sleeps when idle. A GitHub-hosted runner
 # can, and is free for a public repository.
 #
-# What it does not do: boot the image (QEMU acceptance) or run the Robot suites.
-# Those stay in toolkit/release/close-the-loop.sh and vm/regression.sh.
+# After the build, `accept` boots the product image under KVM and reads
+# "show version" over serial, and `regression` runs the Robot suites on the test
+# image (weekly and on request). OBS and the snapshot itself still come from
+# toolkit/release/close-the-loop.sh on the build host. A failed scheduled run
+# opens (or comments on) an issue, so nobody has to look at the Actions tab.
 on:
   schedule:
     - cron: '17 2 * * 1'   # Mondays 02:17 UTC
@@ -68,6 +71,13 @@ jobs:
           echo "ts=$ts" >> "$GITHUB_OUTPUT"
           echo "url=$base/" >> "$GITHUB_OUTPUT"
           echo "snapshot: $ts"
+          # An old snapshot is not an error (nothing changed upstream), but a
+          # weekly build of a months-old package set is worth saying out loud.
+          age=$(( ( $(date +%s) - $(date -d "${ts:0:4}-${ts:4:2}-${ts:6:2}" +%s) ) / 86400 ))
+          echo "Snapshot \`$ts\` is $age days old." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$age" -gt 30 ]; then
+            echo "::warning title=Old snapshot::apt snapshot $ts is $age days old; run close-the-loop.sh on the build host to refresh snapshots/LATEST"
+          fi
 
       - name: Build the ${{ matrix.variant }} ISO
         env:
@@ -294,3 +304,29 @@ jobs:
           gh release create "$tag" "$iso" "$iso.sha256" *.packages \
             --prerelease --title "DANOS 2608 test build $tag" --notes-file notes.md
           echo "published $tag"
+
+  # A scheduled run that fails is otherwise only visible on the Actions tab.
+  # One open issue per problem: later failures comment on it instead of
+  # opening another.
+  notify:
+    needs: [build, accept, regression]
+    if: ${{ always() && github.event_name == 'schedule' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Scheduled ISO build failed"
+          body="Run: $RUN_URL
+          build: ${{ needs.build.result }}, accept: ${{ needs.accept.result }}, regression: ${{ needs.regression.result }}"
+          n=$(gh issue list -R "${{ github.repository }}" --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" -R "${{ github.repository }}" --body "$body"
+          else
+            gh issue create -R "${{ github.repository }}" --title "$title" --body "$body"
+          fi
