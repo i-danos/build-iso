@@ -23,7 +23,7 @@ on:
         type: boolean
         default: false
       regression:
-        description: 'Also run the Robot regression (81 cases) on the test ISO'
+        description: 'Also run the Robot regression (98 cases) on the test ISO'
         type: boolean
         default: false
 
@@ -182,8 +182,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
-  # The Robot regression (BGP, IPsec, MPLS-LDP, firewall, REST, data-plane objects:
-  # 81 cases) against the test image, topology by topology, as vm/regression.sh runs
+  # The Robot regression (BGP, IPsec, MPLS-LDP, firewall, REST, data-plane objects, BGP EVPN, multicast:
+  # 98 cases) against the test image, topology by topology, as vm/regression.sh runs
   # it locally. Runs on the weekly schedule and when asked for. Memory per router is
   # lowered so four routers fit in the runner's 16 GB.
   regression:
@@ -235,7 +235,7 @@ jobs:
           mkdir -p "$OBS_DIR"
           set -o pipefail
           danos-sources/toolkit/vm/regression.sh "$iso" gha 2>&1 | tee regression.log
-          grep -q '^  81 of 81' regression.log
+          grep -q '^  98 of 98' regression.log
 
       - name: Hand the results back to the runner user
         if: always()
@@ -284,7 +284,7 @@ jobs:
             echo "DANOS 2608 (Lancaster) product image, **public test build, not for production**."
             echo
             echo "* Booted under QEMU/KVM by the build workflow before publication; \`show version\` reads \`DANOS:Shipping:2608\`. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${SNAPSHOT_RUN}"
-            echo "* Robot regression 81/81 on QEMU; also run on Celeron J1900 / Intel I211 hardware. Known limitations and what was not tested: docs/PUBLIC-TEST.md"
+            echo "* Robot regression 98/98 on QEMU (includes BGP EVPN and multicast); separate hardware checks on Celeron J1900 / Intel I211. Known limitations and what was not tested: docs/PUBLIC-TEST.md"
             echo "* Secure Boot needs the signing certificate enrolled through MOK: docs/secure-boot/"
             echo "* Live login \`tmpuser\` / \`tmppwd\` (live session only); \`install image\` sets your own administrator account."
             echo "* Licenses and source: LICENSING.md. Security reports: SECURITY.md."
