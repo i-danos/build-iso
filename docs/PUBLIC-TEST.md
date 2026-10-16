@@ -59,9 +59,9 @@ images from booting.
 
 * Robot suites (BGP, IPsec VPN, MPLS-LDP, firewall, REST, data-plane object model,
   BGP EVPN over VXLAN, IPv4 SSM and IPv6 multicast):
-  98 of 98 passed on QEMU for the published pre-release. The suite now has 99
-  cases (one added for data-plane route next hops); the 99-case run is not yet
-  recorded here. Disk install, upgrade and rollback, power-loss recovery
+  99 of 99 pass on QEMU (CI run 38896552806, on the image with `vyatta-dataplane`
+  3.14.45). The published pre-release `v2608_20261009T1127` was tested at 98 of 98,
+  before the data-plane route next-hop case was added. Disk install, upgrade and rollback, power-loss recovery
   and a Secure Boot chain (OVMF virtual firmware) were also exercised.
 * Real hardware: Celeron J1900 with Intel I211 (four ports), OSPF and BGP between
   two boxes, QoS shaping, forwarding at about 940 Mbit/s TCP, same-version
