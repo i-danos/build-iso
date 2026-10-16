@@ -59,7 +59,7 @@ images from booting.
 
 * Robot suites (BGP, IPsec VPN, MPLS-LDP, firewall, REST, data-plane object model,
   BGP EVPN over VXLAN, IPv4 SSM and IPv6 multicast):
-  98 of 98 pass on QEMU (the published pre-release was tested at 81 of 81, before
+  99 of 99 pass on QEMU (the published pre-release was tested at 81 of 81, before
   the BGP EVPN and multicast suites were added). Disk install, upgrade and rollback, power-loss recovery
   and a Secure Boot chain (OVMF virtual firmware) were also exercised.
 * Real hardware: Celeron J1900 with Intel I211 (four ports), OSPF and BGP between

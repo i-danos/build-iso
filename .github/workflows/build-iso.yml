@@ -26,7 +26,7 @@ on:
         type: boolean
         default: false
       regression:
-        description: 'Also run the Robot regression (98 cases) on the test ISO'
+        description: 'Also run the Robot regression (99 cases) on the test ISO'
         type: boolean
         default: false
 
@@ -193,7 +193,7 @@ jobs:
           retention-days: 30
 
   # The Robot regression (BGP, IPsec, MPLS-LDP, firewall, REST, data-plane objects, BGP EVPN, multicast:
-  # 98 cases) against the test image, topology by topology, as vm/regression.sh runs
+  # 99 cases) against the test image, topology by topology, as vm/regression.sh runs
   # it locally. Runs on the weekly schedule and when asked for. Memory per router is
   # lowered so four routers fit in the runner's 16 GB.
   regression:
@@ -245,7 +245,7 @@ jobs:
           mkdir -p "$OBS_DIR"
           set -o pipefail
           danos-sources/toolkit/vm/regression.sh "$iso" gha 2>&1 | tee regression.log
-          grep -q '^  98 of 98' regression.log
+          grep -q '^  99 of 99' regression.log
 
       - name: Hand the results back to the runner user
         if: always()
@@ -292,7 +292,7 @@ jobs:
         run: |
           cd iso
           if [ "$REGRESSION" = success ]; then
-            reg="Robot regression 98/98 on QEMU (includes BGP EVPN and multicast)"
+            reg="Robot regression 99/99 on QEMU (includes BGP EVPN and multicast)"
           else
             reg="Robot regression was not run for this build"
           fi
