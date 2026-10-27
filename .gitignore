@@ -42,3 +42,9 @@ config/hooks/**/*.hook.binary
 # Build driver output. One per ISO build, 19 of them untracked at the time of
 # writing, and exactly what a careless "git add -A" sweeps into a commit.
 mk-*.out
+
+# build outputs: never tracked
+container-output*/
+.wrangler/
+*.iso
+*.squashfs
