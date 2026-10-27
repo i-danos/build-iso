@@ -55,9 +55,15 @@ if [ -n "${https_proxy:-${HTTPS_PROXY:-}}" ] || [ -n "${http_proxy:-${HTTP_PROXY
 fi
 
 if docker buildx version >/dev/null 2>&1; then
-  docker buildx build --load "${build_proxy_args[@]}" --tag "$IMAGE" "$ROOT"
+  docker buildx build --load "${build_proxy_args[@]}" \
+    ${DEBIAN_MIRROR:+--build-arg "DEBIAN_MIRROR=$DEBIAN_MIRROR"} \
+    ${DEBIAN_SECURITY_MIRROR:+--build-arg "DEBIAN_SECURITY_MIRROR=$DEBIAN_SECURITY_MIRROR"} \
+    --tag "$IMAGE" "$ROOT"
 else
-  docker build "${build_proxy_args[@]}" --tag "$IMAGE" "$ROOT"
+  docker build "${build_proxy_args[@]}" \
+    ${DEBIAN_MIRROR:+--build-arg "DEBIAN_MIRROR=$DEBIAN_MIRROR"} \
+    ${DEBIAN_SECURITY_MIRROR:+--build-arg "DEBIAN_SECURITY_MIRROR=$DEBIAN_SECURITY_MIRROR"} \
+    --tag "$IMAGE" "$ROOT"
 fi
 
 mirror_args=()
