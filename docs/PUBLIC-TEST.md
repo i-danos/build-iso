@@ -70,7 +70,8 @@ images from booting.
   path in about one second. A downstream FRR patch removes the delay in the
   kernel routing table that used to affect traffic the router itself originates
   (12 of 12 link-down cycles clean on the test bench, 81 of 81 Robot cases on the
-  patched image).
+  patched image; 81 was the Robot suite size on 2026-09-26 -- `vm/regression.sh` now runs 8 suites / 99 cases:
+  ipsec 10, mpls 11, dpa 8, evpn 9, fw 16, mcast 8, bgp 16, rest 21).
 
 ## Known limitations
 
