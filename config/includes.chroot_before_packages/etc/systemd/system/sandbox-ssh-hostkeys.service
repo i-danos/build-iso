@@ -1,0 +1,13 @@
+[Unit]
+Description=Generate SSH host keys for the CLI sandbox on first boot
+ConditionPathIsReadWrite=/var/lib/sandbox/etc/ssh
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# -A only creates the key types that are missing, so this is safe on every boot.
+ExecStart=/usr/bin/ssh-keygen -A -f /var/lib/sandbox
+
+[Install]
+WantedBy=multi-user.target

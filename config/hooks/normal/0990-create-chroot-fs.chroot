@@ -114,6 +114,11 @@ cli_sandbox()
 	       ${opts} "${DIST}" "${R}" -
        	# Now clean up cli-sandbox
        	chroot "$R" apt-get clean
+	# openssh-server reaches the sandbox through libnetconf0's dependency and its
+	# postinst generates host keys while the sandbox is bootstrapped, so every
+	# image would carry the same private keys. Drop them here;
+	# sandbox-ssh-hostkeys.service creates them on first boot.
+	rm -f "$R"/etc/ssh/ssh_host_*
     fi
     rm -f /etc/apt/sources.list.d/dummy
     echo "I: End Sandbox"
