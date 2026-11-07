@@ -2,6 +2,20 @@ Package: *
 Pin: release o=DANOS
 Pin-Priority: 1000
 
+# frr carries the DANOS zebra NHG patch (0001-zebra-nhg-...-10.3.patch, see
+# toolkit/frr-patches/). The overlay is a second DANOS source served during the
+# build, and its Release has no Origin/Archive that the blanket o=DANOS pin above
+# could match, so the patched build only won by version number. That is fragile:
+# a Debian security upload (e.g. 10.3-3+deb13u2) sorts higher than
+# 10.3-3+deb13u1danos1 and would silently drop the patch. Pin frr to the overlay
+# by archive name so the patch survives Debian point updates.
+#
+# Scoped to frr on purpose: pinning the whole overlay would also freeze the
+# Debian-forced packages in it and stop security updates there.
+Package: frr frr-snmp frr-pythontools
+Pin: release a=danos-local-overlay
+Pin-Priority: 1001
+
 # iputils is no longer forked. The pin here used to hold ping at DANOS's 2018
 # build for a local -Z option ("source from this interface's address"), which
 # the op-mode ping wrapper needed for loopback interfaces. The wrapper now
